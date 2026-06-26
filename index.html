@@ -84,6 +84,7 @@
   <div id="areaContent"></div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="template_data.js"></script>
 <script src="template_totals.js"></script>
 <script src="phone_inline.js"></script>
@@ -222,13 +223,17 @@ function render() {
 // ================================================================
 // AREA DETAIL PAGE
 // ================================================================
+let areaCharts = [];
+function destroyCharts() { areaCharts.forEach(c => c.destroy()); areaCharts = []; }
 function openArea(areaKey) {
+  destroyCharts();
   document.getElementById('mainPage').style.display = 'none';
   document.getElementById('areaPage').style.display = 'block';
   window.scrollTo(0,0);
   renderAreaPage(areaKey);
 }
 function showMain() {
+  destroyCharts();
   document.getElementById('areaPage').style.display = 'none';
   document.getElementById('mainPage').style.display = 'block';
 }
@@ -237,9 +242,67 @@ function renderAreaPage(areaKey) {
   const area = AREAS.find(a => a.key === areaKey);
   const wa = getDataByArea();
 
-  // Header
+  // Header + Charts
+  const msgs = []; const costs = [];
+  MONTHS.forEach(m => { const v = p(wa[areaKey][m],m); msgs.push(v||0); costs.push((v||0)*(cpm[m]||0)); });
+
+  const provs = getProvBreakdown(areaKey);
+  const provLabels = Object.keys(provs);
+  const provTotals = provLabels.map(pv => MONTHS.reduce((s,m) => s + (provs[pv][m]||0), 0));
+  const provColors = ['#1a1a1a','#555','#999','#ccc','#2563eb','#059669'];
+
   document.getElementById('areaHeader').innerHTML =
-    '<div style="margin-bottom:20px;"><span class="badge '+area.badge+'" style="font-size:14px;padding:4px 14px;">'+area.label+'</span></div>';
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;flex-wrap:wrap;gap:20px;">' +
+    '<span class="badge '+area.badge+'" style="font-size:14px;padding:4px 14px;">'+area.label+'</span>' +
+    '</div>' +
+    '<div style="display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-bottom:28px;">' +
+    '<div style="background:#f9f8f4;border-radius:8px;padding:16px 20px;">' +
+    '<div class="sf" style="font-size:11px;font-weight:600;color:#666;margin-bottom:8px;">Evolucion mensual</div>' +
+    '<div style="position:relative;height:200px;"><canvas id="areaLineChart"></canvas></div>' +
+    '</div>' +
+    '<div style="background:#f9f8f4;border-radius:8px;padding:16px 20px;">' +
+    '<div class="sf" style="font-size:11px;font-weight:600;color:#666;margin-bottom:8px;">Composicion por plataforma</div>' +
+    '<div style="position:relative;height:200px;"><canvas id="areaDonutChart"></canvas></div>' +
+    '</div>' +
+    '</div>';
+
+  // Render charts
+  areaCharts.push(new Chart(document.getElementById('areaLineChart'), {
+    type: 'line',
+    data: {
+      labels: ML,
+      datasets: [
+        { label: 'Mensajes', data: msgs, borderColor: '#1a1a1a', backgroundColor: 'rgba(26,26,26,0.08)', fill: true, tension: 0.3, yAxisID: 'y', pointRadius: 4, pointBackgroundColor: '#1a1a1a' },
+        { label: 'Costo USD', data: costs, borderColor: '#2563eb', backgroundColor: 'transparent', borderDash: [5,3], tension: 0.3, yAxisID: 'y1', pointRadius: 4, pointBackgroundColor: '#2563eb' }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { font: { size: 10, family: '-apple-system, system-ui, sans-serif' } } } },
+      scales: {
+        y: { position: 'left', grid: { color: '#ececec' }, ticks: { callback: v => v>=1000?(v/1000).toFixed(0)+'K':v, font: { size: 10 } } },
+        y1: { position: 'right', grid: { display: false }, ticks: { callback: v => '$'+(v>=1000?(v/1000).toFixed(0)+'K':v), font: { size: 10 } } },
+        x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+      }
+    }
+  }));
+
+  if (provLabels.length > 0 && provTotals.some(v => v > 0)) {
+    areaCharts.push(new Chart(document.getElementById('areaDonutChart'), {
+      type: 'doughnut',
+      data: {
+        labels: provLabels.map(l => l.charAt(0).toUpperCase() + l.slice(1)),
+        datasets: [{ data: provTotals, backgroundColor: provColors.slice(0, provLabels.length), borderWidth: 2, borderColor: '#fff' }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '55%',
+        plugins: {
+          legend: { position: 'bottom', labels: { font: { size: 10, family: '-apple-system, system-ui, sans-serif' }, padding: 12 } },
+          tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.parsed.toLocaleString() + ' msgs (' + (ctx.parsed / provTotals.reduce((a,b)=>a+b,0) * 100).toFixed(1) + '%)' } }
+        }
+      }
+    }));
+  }
 
   let html = '';
 
