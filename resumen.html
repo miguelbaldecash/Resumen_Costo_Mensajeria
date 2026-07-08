@@ -98,6 +98,7 @@ const MI = {ene:3,feb:4,mar:5,abr:6,may:7,jun:8,jul:9};
 const JD = 7, JMD = 31;
 const cpmBlip = {ene:0.0471, feb:0.0679, mar:0.0678, abr:0.0749, may:0.0827, jun:0.0827, jul:0.0827};
 const cpmVox = {ene:0.031, feb:0.031, mar:0.031, abr:0.031, may:0.031, jun:0.031, jul:0.031};
+const botmakerCost = {ene:3407, feb:3377};
 
 const otherCh = {
   'Llamadas Voximplant PSTN': {d:{ene:45,feb:115501,mar:66088,abr:80289,may:109689,jun:16578,jul:1214},c:{ene:1000,feb:500,mar:756,abr:2112,may:1500,jun:170},cur:'USD'},
@@ -169,6 +170,14 @@ function getVoxVolume() {
   return r;
 }
 
+function getBotVolume() {
+  const r = {}; MONTHS.forEach(m => r[m] = 0);
+  templateData.forEach(row => {
+    if (row[0] === 'botmaker') MONTHS.forEach(m => r[m] += row[MI[m]]);
+  });
+  return r;
+}
+
 function p(v, m) {
   if (!document.getElementById('projectToggle').checked) return v;
   return m === 'jul' && v ? Math.round(v * JMD / JD) : v;
@@ -199,27 +208,32 @@ function render() {
   gc += '<td style="font-weight:700;">'+fk(gt)+'</td>';
   html += '<tr class="total-row"><td>Total WhatsApp</td>'+gc+'</tr>';
 
-  // Cost - split Blip vs Voximplant Kit
+  // Cost - split Blip vs Voximplant Kit vs Botmaker
   const vox = getVoxVolume();
-  let cbt=0, cbc='', cvt=0, cvc='', cat=0, cac='';
+  const bot = getBotVolume();
+  let cbt=0, cbc='', cvt=0, cvc='', cbmt=0, cbmc='', cat=0, cac='';
   MONTHS.forEach(m => {
     let totalM=0; AREAS.forEach(a => totalM += p(wa[a.key][m],m)||0);
     const voxM = p(vox[m],m)||0;
-    const blipM = totalM - voxM;
-    const costBlip = blipM * (cpmBlip[m]||0);
+    const costTotal = totalM * (cpmBlip[m]||0);
     const costVox = voxM * (cpmVox[m]||0);
-    const costAll = costBlip + costVox;
-    cbt+=costBlip; cvt+=costVox; cat+=costAll;
+    const costBot = botmakerCost[m]||0;
+    const costBlip = costTotal - costBot;
+    const costAll = costTotal + costVox;
+    cbt+=costBlip; cvt+=costVox; cbmt+=costBot; cat+=costAll;
     const hasFact = m!=='jun'&&m!=='jul';
     const star = hasFact?'':' *';
     cbc+='<td>'+(costBlip?fd(costBlip)+star:'—')+'</td>';
     cvc+='<td>'+(costVox?fd(costVox)+star:'—')+'</td>';
+    cbmc+='<td>'+(costBot?fd(costBot):'—')+'</td>';
     cac+='<td>'+(costAll?fd(costAll)+star:'—')+'</td>';
   });
   cbc+='<td style="font-weight:700;">'+fd(cbt)+'</td>';
   cvc+='<td style="font-weight:700;">'+fd(cvt)+'</td>';
+  cbmc+='<td style="font-weight:700;">'+fd(cbmt)+'</td>';
   cac+='<td style="font-weight:700;">'+fd(cat)+'</td>';
   html += '<tr class="cost-row"><td>Costo Blip WA USD</td>'+cbc+'</tr>';
+  html += '<tr class="cost-row"><td>Costo Botmaker USD</td>'+cbmc+'</tr>';
   html += '<tr class="cost-row"><td>Costo Voximplant Kit USD</td>'+cvc+'</tr>';
   html += '<tr class="cost-row" style="border-top:2px solid #999;"><td>Costo total WA USD</td>'+cac+'</tr>';
   document.getElementById('waBody').innerHTML = html;
