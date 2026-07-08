@@ -51,27 +51,27 @@
   <div class="header">
     <div class="kicker">Baldecash &middot; Vista ejecutiva</div>
     <h1>Mensajeria y voz &mdash; volumen y costo</h1>
-    <div class="subtitle">Balde K S.A.C. &middot; Enero&ndash;Junio 23, 2026 &middot; USD + PEN</div>
+    <div class="subtitle">Balde K S.A.C. &middot; Enero&ndash;Julio 7, 2026 &middot; USD + PEN</div>
   </div>
 
   <div class="toggle-bar">
-    <label><input type="checkbox" id="projectToggle" onchange="render()"> Proyectar junio al mes completo (23 &rarr; 30 dias)</label>
+    <label><input type="checkbox" id="projectToggle" onchange="render()"> Proyectar julio al mes completo (7 &rarr; 31 dias)</label>
     <span id="projLabel" style="color:#6366f1;font-weight:600;display:none;">Proyeccion activa</span>
   </div>
 
   <div class="section-title">WhatsApp &mdash; mensajes por area de negocio (en miles)</div>
   <table class="summary-table"><thead>
-    <tr><th>Area</th><th>Ene</th><th>Feb</th><th>Mar</th><th>Abr</th><th>May</th><th>Jun</th><th>Total</th></tr>
+    <tr><th>Area</th><th>Ene</th><th>Feb</th><th>Mar</th><th>Abr</th><th>May</th><th>Jun</th><th>Jul</th><th>Total</th></tr>
   </thead><tbody id="waBody"></tbody></table>
   <div class="note">Click en un area para ver el desglose detallado. Numeros en miles (K). * = costo estimado (sin factura).</div>
 
   <div class="section-title" style="margin-top:24px;">Otros canales &mdash; llamadas, emails, SMS (en miles)</div>
   <table class="summary-table"><thead>
-    <tr><th>Canal</th><th>Ene</th><th>Feb</th><th>Mar</th><th>Abr</th><th>May</th><th>Jun</th><th>Total</th></tr>
+    <tr><th>Canal</th><th>Ene</th><th>Feb</th><th>Mar</th><th>Abr</th><th>May</th><th>Jun</th><th>Jul</th><th>Total</th></tr>
   </thead><tbody id="otherBody"></tbody></table>
 
   <div class="footer">
-    Balde K S.A.C. &middot; Enero&ndash;Junio 23, 2026 &middot; Blip, Botmaker, Voximplant, GoHighLevel, Mailgun, Labs Mobile, Kontactus
+    Balde K S.A.C. &middot; Enero&ndash;Julio 7, 2026 &middot; Blip, Botmaker, Voximplant, GoHighLevel, Mailgun, Labs Mobile, Kontactus
   </div>
 </div>
 
@@ -92,18 +92,19 @@
 <script src="template_contents.js"></script>
 
 <script>
-const MONTHS = ['ene','feb','mar','abr','may','jun'];
-const ML = ['Ene','Feb','Mar','Abr','May','Jun'];
-const MI = {ene:3,feb:4,mar:5,abr:6,may:7,jun:8};
-const JD = 23, JMD = 30;
-const cpm = {ene:0.0471, feb:0.0679, mar:0.0678, abr:0.0749, may:0.0827, jun:0.0827};
+const MONTHS = ['ene','feb','mar','abr','may','jun','jul'];
+const ML = ['Ene','Feb','Mar','Abr','May','Jun','Jul'];
+const MI = {ene:3,feb:4,mar:5,abr:6,may:7,jun:8,jul:9};
+const JD = 7, JMD = 31;
+const cpmBlip = {ene:0.0471, feb:0.0679, mar:0.0678, abr:0.0749, may:0.0827, jun:0.0827, jul:0.0827};
+const cpmVox = {ene:0.031, feb:0.031, mar:0.031, abr:0.031, may:0.031, jun:0.031, jul:0.031};
 
 const otherCh = {
-  'Llamadas Voximplant PSTN': {d:{ene:45,feb:115501,mar:66088,abr:80289,may:109689,jun:16007},c:{ene:1000,feb:500,mar:756,abr:2112,may:1500},cur:'USD'},
-  'Llamadas Kontactus': {d:{ene:6200,feb:26900,mar:66094,abr:109755,may:69176},c:{ene:1452,feb:1512,mar:1513,abr:1770,may:1716},cur:'PEN'},
-  'Email GoHighLevel': {d:{abr:4279,may:11467,jun:8030},c:{abr:100,may:116,jun:107},cur:'USD'},
-  'Email Mailgun': {d:{ene:16800,feb:21300,mar:27902,may:62992,jun:38618},c:{ene:35,feb:35,mar:35,abr:35,may:35,jun:35},cur:'USD'},
-  'SMS Labs Mobile': {d:{mar:9580,abr:12659,may:4003,jun:1892},c:{mar:709,abr:990,may:365,jun:138},cur:'PEN'},
+  'Llamadas Voximplant PSTN': {d:{ene:45,feb:115501,mar:66088,abr:80289,may:109689,jun:16578,jul:1214},c:{ene:1000,feb:500,mar:756,abr:2112,may:1500,jun:170},cur:'USD'},
+  'Llamadas Kontactus': {d:{ene:6200,feb:26900,mar:66094,abr:109755,may:69176,jun:8091,jul:9939},c:{ene:1452,feb:1512,mar:1513,abr:1770,may:1716},cur:'PEN'},
+  'Email GoHighLevel': {d:{abr:4279,may:11467,jun:16178,jul:2251},c:{abr:100,may:116,jun:114,jul:100},cur:'USD'},
+  'Email Mailgun': {d:{ene:16800,feb:21300,mar:27902,may:62992,jun:54650,jul:7958},c:{ene:35,feb:35,mar:35,abr:35,may:35,jun:35,jul:35},cur:'USD'},
+  'SMS Labs Mobile': {d:{mar:9580,abr:12659,may:4003,jun:2660},c:{mar:709,abr:990,may:365},cur:'PEN'},
 };
 
 // Areas definition
@@ -160,9 +161,17 @@ function getDataByArea() {
   return r;
 }
 
+function getVoxVolume() {
+  const r = {}; MONTHS.forEach(m => r[m] = 0);
+  templateData.forEach(row => {
+    if (row[0] === 'voximplant') MONTHS.forEach(m => r[m] += row[MI[m]]);
+  });
+  return r;
+}
+
 function p(v, m) {
   if (!document.getElementById('projectToggle').checked) return v;
-  return m === 'jun' && v ? Math.round(v * JMD / JD) : v;
+  return m === 'jul' && v ? Math.round(v * JMD / JD) : v;
 }
 function fk(n) { return n == null || isNaN(n) || n === 0 ? '—' : (n/1000).toFixed(1) + 'K'; }
 function fn(n) { return n == null || isNaN(n) || n === 0 ? '—' : n.toLocaleString('en-US'); }
@@ -179,7 +188,7 @@ function render() {
   AREAS.forEach(a => {
     const d = wa[a.key];
     let total = 0, cells = '';
-    MONTHS.forEach(m => { const v = p(d[m],m); total += v||0; const cls = m==='jun'&&document.getElementById('projectToggle').checked?' projected':''; cells += '<td class="'+cls+'">'+fk(v)+'</td>'; });
+    MONTHS.forEach(m => { const v = p(d[m],m); total += v||0; const cls = m==='jul'&&document.getElementById('projectToggle').checked?' projected':''; cells += '<td class="'+cls+'">'+fk(v)+'</td>'; });
     cells += '<td style="font-weight:700;">'+fk(total)+'</td>';
     html += '<tr class="clickable" onclick="openArea(\''+a.key+'\')"><td><span class="badge '+a.badge+'">'+a.label+'</span></td>'+cells+'</tr>';
   });
@@ -190,12 +199,29 @@ function render() {
   gc += '<td style="font-weight:700;">'+fk(gt)+'</td>';
   html += '<tr class="total-row"><td>Total WhatsApp</td>'+gc+'</tr>';
 
-  // Cost
-  let ct=0, cc='';
-  MONTHS.forEach(m => { let s=0; AREAS.forEach(a => s += p(wa[a.key][m],m) * (cpm[m]||0)); ct+=s;
-    const hasFact = m!=='jun'; cc+='<td>'+(s?fd(s)+(hasFact?'':' *'):'—')+'</td>'; });
-  cc += '<td style="font-weight:700;">'+fd(ct)+'</td>';
-  html += '<tr class="cost-row"><td>Costo estimado USD</td>'+cc+'</tr>';
+  // Cost - split Blip vs Voximplant Kit
+  const vox = getVoxVolume();
+  let cbt=0, cbc='', cvt=0, cvc='', cat=0, cac='';
+  MONTHS.forEach(m => {
+    let totalM=0; AREAS.forEach(a => totalM += p(wa[a.key][m],m)||0);
+    const voxM = p(vox[m],m)||0;
+    const blipM = totalM - voxM;
+    const costBlip = blipM * (cpmBlip[m]||0);
+    const costVox = voxM * (cpmVox[m]||0);
+    const costAll = costBlip + costVox;
+    cbt+=costBlip; cvt+=costVox; cat+=costAll;
+    const hasFact = m!=='jun'&&m!=='jul';
+    const star = hasFact?'':' *';
+    cbc+='<td>'+(costBlip?fd(costBlip)+star:'—')+'</td>';
+    cvc+='<td>'+(costVox?fd(costVox)+star:'—')+'</td>';
+    cac+='<td>'+(costAll?fd(costAll)+star:'—')+'</td>';
+  });
+  cbc+='<td style="font-weight:700;">'+fd(cbt)+'</td>';
+  cvc+='<td style="font-weight:700;">'+fd(cvt)+'</td>';
+  cac+='<td style="font-weight:700;">'+fd(cat)+'</td>';
+  html += '<tr class="cost-row"><td>Costo Blip WA USD</td>'+cbc+'</tr>';
+  html += '<tr class="cost-row"><td>Costo Voximplant Kit USD</td>'+cvc+'</tr>';
+  html += '<tr class="cost-row" style="border-top:2px solid #999;"><td>Costo total WA USD</td>'+cac+'</tr>';
   document.getElementById('waBody').innerHTML = html;
 
   // Other channels
@@ -204,7 +230,7 @@ function render() {
   Object.entries(otherCh).forEach(([name,ch]) => {
     let cells='', total=0;
     MONTHS.forEach(m => { const v=p(ch.d[m]||0,m); total+=v;
-      const cls=m==='jun'&&document.getElementById('projectToggle').checked&&ch.d[m]?' projected':'';
+      const cls=m==='jul'&&document.getElementById('projectToggle').checked&&ch.d[m]?' projected':'';
       cells+='<td class="'+cls+'">'+(v?fk(v):'—')+'</td>';
       if(ch.cur==='USD') usdT[m]+=p(ch.c[m]||0,m); else penT[m]+=p(ch.c[m]||0,m); });
     cells+='<td style="font-weight:700;">'+fk(total)+'</td>';
@@ -244,7 +270,7 @@ function renderAreaPage(areaKey) {
 
   // Header + Charts
   const msgs = []; const costs = [];
-  MONTHS.forEach(m => { const v = p(wa[areaKey][m],m); msgs.push(v||0); costs.push((v||0)*(cpm[m]||0)); });
+  MONTHS.forEach(m => { const v = p(wa[areaKey][m],m); msgs.push(v||0); costs.push((v||0)*(cpmBlip[m]||0)); });
 
   const provs = getProvBreakdown(areaKey);
   const provLabels = Object.keys(provs);
@@ -326,7 +352,7 @@ function renderAreaPage(areaKey) {
   html += '<td style="font-weight:700;">'+fn(tM)+'</td></tr>';
 
   let tC=0; html += '<tr><td style="font-weight:600;">Costo estimado</td>';
-  MONTHS.forEach(m => { const v=p(wa[areaKey][m],m)*(cpm[m]||0); tC+=v; html+='<td>'+fd(v)+'</td>'; });
+  MONTHS.forEach(m => { const v=p(wa[areaKey][m],m)*(cpmBlip[m]||0); tC+=v; html+='<td>'+fd(v)+'</td>'; });
   html += '<td style="font-weight:700;">'+fd(tC)+'</td></tr>';
   html += '</tbody></table>';
 
@@ -347,8 +373,8 @@ function renderAreaPage(areaKey) {
   // === INTENSIDAD ===
   html += '<div class="at-tab" id="at-intensity">';
   html += '<select id="intMonth" class="sf" style="padding:6px 12px;border:1px solid #ddd;border-radius:4px;font-size:12px;margin-bottom:12px;" onchange="refreshIntensity(\''+areaKey+'\')">';
-  MONTHS.forEach(m => html += '<option value="'+m+'"'+(m==='may'?' selected':'')+'>'+ML[MONTHS.indexOf(m)]+'</option>');
-  html += '</select><div id="intContent">'+buildIntensity(areaKey,'may')+'</div>';
+  MONTHS.forEach(m => html += '<option value="'+m+'"'+(m==='jun'?' selected':'')+'>'+ML[MONTHS.indexOf(m)]+'</option>');
+  html += '</select><div id="intContent">'+buildIntensity(areaKey,'jun')+'</div>';
   html += '</div>';
 
   // === PLANTILLAS ===
@@ -402,8 +428,8 @@ function renderCobranzaSubgroups() {
 
 // Generic subgroups (by template name, top 10)
 function renderGenericSubgroups(areaKey) {
-  const tpls = templateData.filter(r => getEffectiveArea(r) === areaKey && r[9] > 0)
-    .sort((a,b) => b[9]-a[9]).slice(0,10);
+  const tpls = templateData.filter(r => getEffectiveArea(r) === areaKey && r[10] > 0)
+    .sort((a,b) => b[10]-a[10]).slice(0,10);
   if (!tpls.length) return '';
 
   let html = '<div style="margin-top:16px;">';
@@ -434,7 +460,7 @@ function getMetaBreakdown(areaKey) {
   const r = {};
   templateData.forEach(row => {
     if (getEffectiveArea(row) !== areaKey) return;
-    const mt = row[10]; if (!r[mt]) { r[mt]={}; MONTHS.forEach(m => r[mt][m]=0); }
+    const mt = row[11]; if (!r[mt]) { r[mt]={}; MONTHS.forEach(m => r[mt][m]=0); }
     MONTHS.forEach(m => r[mt][m] += row[MI[m]]);
   }); return r;
 }
@@ -483,17 +509,17 @@ function refreshIntensity(areaKey) {
 function buildTemplates(areaKey, month, search) {
   let tpls = templateData.filter(r => getEffectiveArea(r)===areaKey);
   const idx = month==='todos'?null:MI[month];
-  tpls = tpls.filter(r => idx ? r[idx]>0 : r[9]>0);
+  tpls = tpls.filter(r => idx ? r[idx]>0 : r[10]>0);
   if (search) tpls = tpls.filter(r => r[1].toLowerCase().includes(search));
-  tpls.sort((a,b) => idx ? b[idx]-a[idx] : b[9]-a[9]);
-  const rate = idx ? (cpm[month]||0) : cpm.may;
+  tpls.sort((a,b) => idx ? b[idx]-a[idx] : b[10]-a[10]);
+  const rate = idx ? (cpmBlip[month]||0) : cpmBlip.jun;
 
   let h='<div class="sf" style="font-size:11px;color:#888;margin-bottom:6px;">'+tpls.length+' plantillas</div>';
   h+='<div style="max-height:450px;overflow-y:auto;border:1px solid #ececec;border-radius:4px;">';
   h+='<table class="drill-table" style="margin:0;"><thead style="position:sticky;top:0;z-index:1;"><tr><th>Plantilla</th><th>Prov.</th><th>Meta</th><th>Msgs</th><th>Costo</th></tr></thead><tbody>';
   tpls.slice(0,150).forEach(r=>{
-    const msgs=idx?r[idx]:r[9]; const cost=msgs*rate;
-    h+='<tr><td style="font-size:11px;">'+r[1]+'</td><td style="font-size:11px;">'+r[0]+'</td><td style="font-size:10px;">'+r[10]+'</td><td>'+fn(msgs)+'</td><td>'+fd(cost)+'</td></tr>';
+    const msgs=idx?r[idx]:r[10]; const cost=msgs*rate;
+    h+='<tr><td style="font-size:11px;">'+r[1]+'</td><td style="font-size:11px;">'+r[0]+'</td><td style="font-size:10px;">'+r[11]+'</td><td>'+fn(msgs)+'</td><td>'+fd(cost)+'</td></tr>';
   });
   if(tpls.length>150) h+='<tr><td colspan="5" style="text-align:center;color:#999;font-size:11px;">... y '+(tpls.length-150)+' mas</td></tr>';
   h+='</tbody></table></div>';
