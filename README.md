@@ -1,6 +1,6 @@
 # Resumen de Costos — Mensajeria y Voz
 
-Vista ejecutiva interactiva del gasto en comunicaciones de BaldeCash (Enero–Junio 2026).
+Vista ejecutiva interactiva del gasto en comunicaciones de BaldeCash (Enero–Agosto 13, 2026).
 
 **Live:** [miguelbaldecash.github.io/Resumen_Costo_Mensajeria](https://miguelbaldecash.github.io/Resumen_Costo_Mensajeria/)
 
@@ -31,19 +31,19 @@ Click en cualquier area para ver:
 - **Plantillas:** Buscador de plantillas con volumen y costo, filtrable por mes
 
 ### Toggle proyeccion
-Opcion de proyectar el mes parcial (junio 23 dias) al mes completo (30 dias).
+Opcion de proyectar el mes parcial (agosto 13 dias) al mes completo (31 dias).
 
 ## Datos
-- Periodo: Enero–Junio 23, 2026
+- Periodo: Enero–Agosto 13, 2026
 - Fuentes: Blip, Botmaker, Voximplant, GoHighLevel, Mailgun, Labs Mobile, Kontactus
-- Factura Blip mayo: INV/2026/00752 ($12,509.92)
-- Junio: sin factura, costo estimado con blended rate mayo ($0.0827/msg)
+- Factura Blip julio: INV/2026/01018 ($9,947.22)
+- Agosto: sin factura, costo estimado con CPM julio ($0.0771/msg)
 
 ## Archivos
 | Archivo | Descripcion |
 |---|---|
 | `index.html` | Dashboard interactivo |
-| `template_data.js` | 408 plantillas con volumen por mes |
+| `template_data.js` | 758 plantillas con volumen por mes |
 | `template_totals.js` | Totales por area y tipo Meta |
 | `phone_inline.js` | Numeros destino por mes |
 | `template_phones.js` | Plantilla x telefono x mes |
