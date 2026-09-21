@@ -331,14 +331,14 @@ function renderAreaPage(areaKey) {
     areaCharts.push(new Chart(document.getElementById('areaDonutChart'), {
       type: 'doughnut',
       data: {
-        labels: provLabels.map(l => l.charAt(0).toUpperCase() + l.slice(1)),
+        labels: provLabels.map((l,i) => { const pct = (provTotals[i] / provTotals.reduce((a,b)=>a+b,0) * 100).toFixed(1); return l.charAt(0).toUpperCase() + l.slice(1) + ' ' + pct + '%'; }),
         datasets: [{ data: provTotals, backgroundColor: provColors.slice(0, provLabels.length), borderWidth: 2, borderColor: '#fff' }]
       },
       options: {
         responsive: true, maintainAspectRatio: false, cutout: '55%',
         plugins: {
           legend: { position: 'bottom', labels: { font: { size: 10, family: '-apple-system, system-ui, sans-serif' }, padding: 12 } },
-          tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.parsed.toLocaleString() + ' msgs (' + (ctx.parsed / provTotals.reduce((a,b)=>a+b,0) * 100).toFixed(1) + '%)' } }
+          tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.parsed.toLocaleString() + ' msgs' } }
         }
       }
     }));
