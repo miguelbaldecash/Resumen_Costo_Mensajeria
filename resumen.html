@@ -51,27 +51,27 @@
   <div class="header">
     <div class="kicker">Baldecash &middot; Vista ejecutiva</div>
     <h1>Mensajeria y voz &mdash; volumen y costo</h1>
-    <div class="subtitle">Balde K S.A.C. &middot; Enero&ndash;Agosto 13, 2026 &middot; USD + PEN</div>
+    <div class="subtitle">Balde K S.A.C. &middot; Enero&ndash;Septiembre 20, 2026 &middot; USD + PEN</div>
   </div>
 
   <div class="toggle-bar">
-    <label><input type="checkbox" id="projectToggle" onchange="render()"> Proyectar agosto al mes completo (13 &rarr; 31 dias)</label>
+    <label><input type="checkbox" id="projectToggle" onchange="render()"> Proyectar septiembre al mes completo (20 &rarr; 30 dias)</label>
     <span id="projLabel" style="color:#6366f1;font-weight:600;display:none;">Proyeccion activa</span>
   </div>
 
   <div class="section-title">WhatsApp &mdash; mensajes por area de negocio (en miles)</div>
   <table class="summary-table"><thead>
-    <tr><th>Area</th><th>Ene</th><th>Feb</th><th>Mar</th><th>Abr</th><th>May</th><th>Jun</th><th>Jul</th><th>Ago</th><th>Total</th></tr>
+    <tr><th>Area</th><th>Ene</th><th>Feb</th><th>Mar</th><th>Abr</th><th>May</th><th>Jun</th><th>Jul</th><th>Ago</th><th>Sep</th><th>Total</th></tr>
   </thead><tbody id="waBody"></tbody></table>
   <div class="note">Click en un area para ver el desglose detallado. Numeros en miles (K). * = costo estimado (sin factura).</div>
 
   <div class="section-title" style="margin-top:24px;">Otros canales &mdash; llamadas, emails, SMS (en miles)</div>
   <table class="summary-table"><thead>
-    <tr><th>Canal</th><th>Ene</th><th>Feb</th><th>Mar</th><th>Abr</th><th>May</th><th>Jun</th><th>Jul</th><th>Ago</th><th>Total</th></tr>
+    <tr><th>Canal</th><th>Ene</th><th>Feb</th><th>Mar</th><th>Abr</th><th>May</th><th>Jun</th><th>Jul</th><th>Ago</th><th>Sep</th><th>Total</th></tr>
   </thead><tbody id="otherBody"></tbody></table>
 
   <div class="footer">
-    Balde K S.A.C. &middot; Enero&ndash;Agosto 13, 2026 &middot; Blip, Botmaker, Voximplant, GoHighLevel, Mailgun, Labs Mobile, Kontactus
+    Balde K S.A.C. &middot; Enero&ndash;Septiembre 20, 2026 &middot; Blip, Botmaker, Voximplant, GoHighLevel, Mailgun, Labs Mobile, Kontactus
   </div>
 </div>
 
@@ -92,20 +92,20 @@
 <script src="template_contents.js"></script>
 
 <script>
-const MONTHS = ['ene','feb','mar','abr','may','jun','jul','ago'];
-const ML = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago'];
-const MI = {ene:3,feb:4,mar:5,abr:6,may:7,jun:8,jul:9,ago:10};
-const PARTIAL_MONTH = 'ago', PARTIAL_DAYS = 13, FULL_DAYS = 31;
-const cpmBlip = {ene:0.0471, feb:0.0679, mar:0.0678, abr:0.0749, may:0.0827, jun:0.0827, jul:0.0771, ago:0.0771};
-const cpmVox = {ene:0.031, feb:0.031, mar:0.031, abr:0.031, may:0.031, jun:0.031, jul:0.031, ago:0.031};
+const MONTHS = ['ene','feb','mar','abr','may','jun','jul','ago','sep'];
+const ML = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep'];
+const MI = {ene:3,feb:4,mar:5,abr:6,may:7,jun:8,jul:9,ago:10,sep:11};
+const PARTIAL_MONTH = 'sep', PARTIAL_DAYS = 20, FULL_DAYS = 30;
+const cpmBlip = {ene:0.0471, feb:0.0679, mar:0.0678, abr:0.0749, may:0.0827, jun:0.0827, jul:0.08901, ago:0.08250, sep:0.08250};
+const cpmVox = {ene:0.031, feb:0.031, mar:0.031, abr:0.031, may:0.031, jun:0.031, jul:0.031, ago:0.031, sep:0.031};
 const botmakerCost = {ene:3407, feb:3377};
 
 const otherCh = {
-  'Llamadas Voximplant PSTN': {d:{ene:45,feb:115501,mar:66088,abr:80289,may:109689,jun:16578,jul:80367,ago:8778},c:{ene:1000,feb:500,mar:756,abr:2112,may:1500,jun:170,jul:663,ago:52},cur:'USD'},
-  'Llamadas Kontactus': {d:{ene:6200,feb:26900,mar:66094,abr:109755,may:69176,jun:8091,jul:76677},c:{ene:1452,feb:1512,mar:1513,abr:1770,may:1716,jun:1722,jul:1693},cur:'PEN'},
-  'Email GoHighLevel': {d:{abr:4279,may:11467,jun:16178,jul:11844,ago:4398},c:{abr:100,may:116,jun:114,jul:16,ago:3},cur:'USD'},
-  'Email Mailgun': {d:{ene:16800,feb:21300,mar:27902,may:62992,jun:54650,jul:26368,ago:5476},c:{ene:35,feb:35,mar:35,abr:35,may:35,jun:35,jul:35,ago:35},cur:'USD'},
-  'SMS Labs Mobile': {d:{mar:9580,abr:12659,may:4003,jun:2660,jul:4088},c:{mar:709,abr:990,may:365},cur:'PEN'},
+  'Llamadas Voximplant PSTN': {d:{ene:45,feb:115501,mar:66088,abr:80289,may:109689,jun:16578,jul:80367,ago:71313,sep:64785},c:{ene:1000,feb:500,mar:756,abr:2112,may:1500,jun:170,jul:455,ago:335,sep:526},cur:'USD'},
+  'Llamadas Kontactus': {d:{ene:6200,feb:26900,mar:66094,abr:109755,may:69176,jun:8091,jul:76677,ago:85191,sep:50376},c:{ene:1452,feb:1512,mar:1513,abr:1770,may:1716,jun:1722,jul:1693,ago:1683},cur:'PEN'},
+  'Email GoHighLevel': {d:{abr:4279,may:11467,jun:16178,jul:11844,ago:22855,sep:16838},c:{abr:100,may:116,jun:114,jul:16,ago:22,sep:17},cur:'USD'},
+  'Email Mailgun': {d:{ene:16800,feb:21300,mar:27902,may:62992,jun:54650,jul:26368,ago:17369,sep:18738},c:{ene:35,feb:35,mar:35,abr:35,may:35,jun:35,jul:35,ago:35,sep:35},cur:'USD'},
+  'SMS Labs Mobile': {d:{mar:9580,abr:12659,may:4003,jun:2660,jul:4088,ago:3285,sep:442},c:{mar:709,abr:990,may:365,ago:397,sep:36},cur:'PEN'},
 };
 
 // Areas definition
@@ -221,7 +221,7 @@ function render() {
     const costBlip = costTotal - costBot;
     const costAll = costTotal + costVox;
     cbt+=costBlip; cvt+=costVox; cbmt+=costBot; cat+=costAll;
-    const hasFact = m!=='jun'&&m!=='jul'&&m!=='ago';
+    const hasFact = m!=='jun'&&m!=='sep';
     const star = hasFact?'':' *';
     cbc+='<td>'+(costBlip?fd(costBlip)+star:'—')+'</td>';
     cvc+='<td>'+(costVox?fd(costVox)+star:'—')+'</td>';
@@ -387,8 +387,8 @@ function renderAreaPage(areaKey) {
   // === INTENSIDAD ===
   html += '<div class="at-tab" id="at-intensity">';
   html += '<select id="intMonth" class="sf" style="padding:6px 12px;border:1px solid #ddd;border-radius:4px;font-size:12px;margin-bottom:12px;" onchange="refreshIntensity(\''+areaKey+'\')">';
-  MONTHS.forEach(m => html += '<option value="'+m+'"'+(m==='ago'?' selected':'')+'>'+ML[MONTHS.indexOf(m)]+'</option>');
-  html += '</select><div id="intContent">'+buildIntensity(areaKey,'ago')+'</div>';
+  MONTHS.forEach(m => html += '<option value="'+m+'"'+(m==='sep'?' selected':'')+'>'+ML[MONTHS.indexOf(m)]+'</option>');
+  html += '</select><div id="intContent">'+buildIntensity(areaKey,'sep')+'</div>';
   html += '</div>';
 
   // === PLANTILLAS ===
@@ -440,24 +440,42 @@ function renderCobranzaSubgroups() {
   return html;
 }
 
-// Generic subgroups (by template name, top 10)
+// Generic subgroups (by template name, top 15 unified)
 function renderGenericSubgroups(areaKey) {
-  const tpls = templateData.filter(r => getEffectiveArea(r) === areaKey && r[11] > 0)
-    .sort((a,b) => b[11]-a[11]).slice(0,10);
-  if (!tpls.length) return '';
+  const allTpls = templateData.filter(r => getEffectiveArea(r) === areaKey && r[12] > 0);
+  if (!allTpls.length) return '';
+
+  // Merge top 10 by total + top 10 by recent into one unique list, sorted by total
+  const recentIdx = [MI['ago'], MI['sep']];
+  const topTotal = [...allTpls].sort((a,b) => b[12]-a[12]).slice(0,10);
+  const topRecent = allTpls.map(r => ({r, recent: recentIdx.reduce((s,i) => s + (r[i]||0), 0)}))
+    .filter(x => x.recent > 0).sort((a,b) => b.recent - a.recent).slice(0,10).map(x => x.r);
+  const seen = new Set();
+  const merged = [];
+  [...topTotal, ...topRecent].forEach(r => { if (!seen.has(r[1])) { seen.add(r[1]); merged.push(r); } });
+  merged.sort((a,b) => b[12]-a[12]);
 
   let html = '<div style="margin-top:16px;">';
-  html += '<div class="exp-hdr" onclick="togExp(this)"><span class="arr">&#9654;</span> Top 10 plantillas por volumen</div>';
-  html += '<div class="exp-body">';
+  html += '<div class="exp-hdr open" onclick="togExp(this)"><span class="arr">&#9654;</span> Top plantillas por volumen</div>';
+  html += '<div class="exp-body open">';
   html += '<table class="drill-table"><thead><tr><th>Plantilla</th>';
   MONTHS.forEach(m => html += '<th>'+ML[MONTHS.indexOf(m)]+'</th>');
   html += '<th>Total</th></tr></thead><tbody>';
-  tpls.forEach(r => {
+  const mergedSet = new Set(merged.map(r=>r[1]));
+  merged.forEach(r => {
     let total = 0;
     html += '<tr><td style="font-size:11px;">'+r[1]+'</td>';
     MONTHS.forEach(m => { const v=p(r[MI[m]],m); total+=v||0; html+='<td>'+fn(v)+'</td>'; });
     html += '<td style="font-weight:700;">'+fn(total)+'</td></tr>';
   });
+  // "Otros" row: remaining templates not in the list
+  const rest = allTpls.filter(r => !mergedSet.has(r[1]));
+  if (rest.length > 0) {
+    let rTotal = 0;
+    html += '<tr style="color:#888;font-style:italic;"><td style="font-size:11px;">Otros ('+rest.length+' plantillas)</td>';
+    MONTHS.forEach(m => { let s=0; rest.forEach(r => s+=r[MI[m]]||0); const v=p(s,m); rTotal+=v||0; html+='<td>'+fn(v)+'</td>'; });
+    html += '<td style="font-weight:700;">'+fn(rTotal)+'</td></tr>';
+  }
   html += '</tbody></table></div></div>';
   return html;
 }
@@ -474,7 +492,7 @@ function getMetaBreakdown(areaKey) {
   const r = {};
   templateData.forEach(row => {
     if (getEffectiveArea(row) !== areaKey) return;
-    const mt = row[12]; if (!r[mt]) { r[mt]={}; MONTHS.forEach(m => r[mt][m]=0); }
+    const mt = row[13]; if (!r[mt]) { r[mt]={}; MONTHS.forEach(m => r[mt][m]=0); }
     MONTHS.forEach(m => r[mt][m] += row[MI[m]]);
   }); return r;
 }
@@ -523,17 +541,17 @@ function refreshIntensity(areaKey) {
 function buildTemplates(areaKey, month, search) {
   let tpls = templateData.filter(r => getEffectiveArea(r)===areaKey);
   const idx = month==='todos'?null:MI[month];
-  tpls = tpls.filter(r => idx ? r[idx]>0 : r[11]>0);
+  tpls = tpls.filter(r => idx ? r[idx]>0 : r[12]>0);
   if (search) tpls = tpls.filter(r => r[1].toLowerCase().includes(search));
-  tpls.sort((a,b) => idx ? b[idx]-a[idx] : b[11]-a[11]);
-  const rate = idx ? (cpmBlip[month]||0) : cpmBlip.ago;
+  tpls.sort((a,b) => idx ? b[idx]-a[idx] : b[12]-a[12]);
+  const rate = idx ? (cpmBlip[month]||0) : cpmBlip.sep;
 
   let h='<div class="sf" style="font-size:11px;color:#888;margin-bottom:6px;">'+tpls.length+' plantillas</div>';
   h+='<div style="max-height:450px;overflow-y:auto;border:1px solid #ececec;border-radius:4px;">';
   h+='<table class="drill-table" style="margin:0;"><thead style="position:sticky;top:0;z-index:1;"><tr><th>Plantilla</th><th>Prov.</th><th>Meta</th><th>Msgs</th><th>Costo</th></tr></thead><tbody>';
   tpls.slice(0,150).forEach(r=>{
-    const msgs=idx?r[idx]:r[11]; const cost=msgs*rate;
-    h+='<tr><td style="font-size:11px;">'+r[1]+'</td><td style="font-size:11px;">'+r[0]+'</td><td style="font-size:10px;">'+r[12]+'</td><td>'+fn(msgs)+'</td><td>'+fd(cost)+'</td></tr>';
+    const msgs=idx?r[idx]:r[12]; const cost=msgs*rate;
+    h+='<tr><td style="font-size:11px;">'+r[1]+'</td><td style="font-size:11px;">'+r[0]+'</td><td style="font-size:10px;">'+r[13]+'</td><td>'+fn(msgs)+'</td><td>'+fd(cost)+'</td></tr>';
   });
   if(tpls.length>150) h+='<tr><td colspan="5" style="text-align:center;color:#999;font-size:11px;">... y '+(tpls.length-150)+' mas</td></tr>';
   h+='</tbody></table></div>';
