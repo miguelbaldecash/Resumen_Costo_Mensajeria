@@ -373,9 +373,8 @@ function renderAreaPage(areaKey) {
   // Subgroups (cobranza has special subgroups)
   if (areaKey === 'cobranza_mora') {
     html += renderCobranzaSubgroups();
-  } else {
-    html += renderGenericSubgroups(areaKey);
   }
+  html += renderGenericSubgroups(areaKey);
 
   // Provider breakdown
   html += renderExpandable('Por plataforma', getProvBreakdown(areaKey));
@@ -452,7 +451,7 @@ function renderGenericSubgroups(areaKey) {
     .filter(x => x.recent > 0).sort((a,b) => b.recent - a.recent).slice(0,10).map(x => x.r);
   const seen = new Set();
   const merged = [];
-  [...topTotal, ...topRecent].forEach(r => { if (!seen.has(r[1])) { seen.add(r[1]); merged.push(r); } });
+  [...topTotal, ...topRecent].forEach(r => { const k=r[0]+'|'+r[1]; if (!seen.has(k)) { seen.add(k); merged.push(r); } });
   merged.sort((a,b) => b[12]-a[12]);
 
   let html = '<div style="margin-top:16px;">';
@@ -461,7 +460,7 @@ function renderGenericSubgroups(areaKey) {
   html += '<table class="drill-table"><thead><tr><th>Plantilla</th>';
   MONTHS.forEach(m => html += '<th>'+ML[MONTHS.indexOf(m)]+'</th>');
   html += '<th>Total</th></tr></thead><tbody>';
-  const mergedSet = new Set(merged.map(r=>r[1]));
+  const mergedSet = new Set(merged.map(r=>r[0]+'|'+r[1]));
   merged.forEach(r => {
     let total = 0;
     html += '<tr><td style="font-size:11px;">'+r[1]+'</td>';
@@ -469,7 +468,7 @@ function renderGenericSubgroups(areaKey) {
     html += '<td style="font-weight:700;">'+fn(total)+'</td></tr>';
   });
   // "Otros" row: remaining templates not in the list
-  const rest = allTpls.filter(r => !mergedSet.has(r[1]));
+  const rest = allTpls.filter(r => !mergedSet.has(r[0]+'|'+r[1]));
   if (rest.length > 0) {
     let rTotal = 0;
     html += '<tr style="color:#888;font-style:italic;"><td style="font-size:11px;">Otros ('+rest.length+' plantillas)</td>';
@@ -527,7 +526,19 @@ function buildIntensity(areaKey, month) {
   let tP=0,tM=0; bk.forEach(b=>{b.p=0;b.m=0;});
   Object.values(pm).forEach(c=>{tP++;tM+=c;bk.forEach(b=>{if(c>=b.a&&c<=b.b){b.p++;b.m+=c;}});});
 
-  let h='<table class="drill-table"><thead><tr><th>Msgs/tel</th><th>Telefonos</th><th>%</th><th>Mensajes</th><th>%</th></tr></thead><tbody>';
+  // Compare phone-level msgs vs area total to detect AC gap
+  const areaTotal = areaTpls.size > 0 ? templateData.filter(r => getEffectiveArea(r)===areaKey && r[idx]>0).reduce((s,r) => s + r[idx], 0) : 0;
+  const coverage = areaTotal > 0 ? (tM / areaTotal * 100) : 100;
+
+  let h = '';
+  if (coverage < 90) {
+    h += '<div style="background:#fef3cd;border:1px solid #ffc107;border-radius:4px;padding:8px 12px;margin-bottom:10px;font-family:-apple-system,system-ui,sans-serif;font-size:11px;color:#856404;">';
+    h += 'Cobertura: '+fn(tM)+' de '+fn(areaTotal)+' msgs ('+coverage.toFixed(0)+'%). ';
+    h += 'Las campanas Active Campaign no tienen desglose por telefono — solo se muestra data de envios programaticos (DB).';
+    h += '</div>';
+  }
+
+  h+='<table class="drill-table"><thead><tr><th>Msgs/tel</th><th>Telefonos</th><th>%</th><th>Mensajes</th><th>%</th></tr></thead><tbody>';
   bk.forEach(b=>{h+='<tr><td>'+b.l+'</td><td>'+fn(b.p)+'</td><td>'+(tP?(b.p/tP*100).toFixed(1):'0')+'%</td><td>'+fn(b.m)+'</td><td>'+(tM?(b.m/tM*100).toFixed(1):'0')+'%</td></tr>';});
   h+='<tr style="font-weight:700;background:#f9f8f4;"><td>Total</td><td>'+fn(tP)+'</td><td></td><td>'+fn(tM)+'</td><td></td></tr></tbody></table>';
   return h;
@@ -579,10 +590,10 @@ render();
   .tab-btn.active { background:#1a1a1a; color:#fff; border-color:#1a1a1a; }
   .at-tab { display:none; }
   .at-tab.active { display:block; }
-  .drill-table { width:100%; border-collapse:collapse; font-family:-apple-system,'Segoe UI',system-ui,sans-serif; font-size:12px; margin:8px 0; }
+  .drill-table { width:100%; border-collapse:collapse; font-family:-apple-system,'Segoe UI',system-ui,sans-serif; font-size:12px; margin:8px 0; table-layout:fixed; }
   .drill-table th { background:#ebeae3; padding:6px 8px; text-align:right; font-size:10px; text-transform:uppercase; letter-spacing:0.5px; color:#666; font-weight:600; }
-  .drill-table th:first-child { text-align:left; }
-  .drill-table td { padding:6px 8px; border-bottom:1px solid #ececec; text-align:right; font-variant-numeric:tabular-nums; }
+  .drill-table th:first-child { text-align:left; width:22%; }
+  .drill-table td { padding:6px 8px; border-bottom:1px solid #ececec; text-align:right; font-variant-numeric:tabular-nums; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .drill-table td:first-child { text-align:left; }
   .exp-hdr { cursor:pointer; display:flex; align-items:center; gap:8px; padding:8px 0; font-family:-apple-system,'Segoe UI',system-ui,sans-serif; font-size:13px; font-weight:600; color:#1a1a1a; border-bottom:1px solid #ececec; }
   .exp-hdr:hover { color:#2563eb; }
